@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center mb-5">
+        <h1 class="display-4 text-primary">
+            <i class="fas fa-chart-pie"></i> Reportes de Reservas
+        </h1>
+        <p class="lead text-muted">Estadísticas detalladas del sistema de reservas</p>
+    </div>
+</div>
+
+<!-- Estadísticas Principales -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <h2 class="card-title">{{ stats.total_reservas }}</h2>
+                <p class="card-text">Total Reservas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <h2 class="card-title">{{ stats.confirmadas }}</h2>
+                <p class="card-text">Confirmadas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <h2 class="card-title">{{ stats.pendientes }}</h2>
+                <p class="card-text">Pendientes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body text-center">
+                <h2 class="card-title">${{ "%.2f"|format(stats.ingresos_totales) }}</h2>
+                <p class="card-text">Ingresos Reservas</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Por Aerolínea -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Reservas por Aerolínea</h5>
+            </div>
+            <div class="card-body">
+                <table class="table table-sm">
+                    <thead>
+                        <tr>
+                            <th>Aerolínea</th>
+                            <th>Reservas</th>
+                            <th>Ingresos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in por_aerolinea %}
+                        <tr>
+                            <td>{{ a.aerolinea }}</td>
+                            <td>{{ a.total_reservas }}</td>
+                            <td>${{ "%.2f"|format(a.ingresos) }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Últimas Reservas -->
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Últimas Reservas</h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Pasajero</th>
+                                <th>Estado</th>
+                                <th>Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for r in ultimas_reservas %}
+                            <tr>
+                                <td>{{ r.id_reserva }}</td>
+                                <td>{{ r.pasajero }}</td>
+                                <td>
+                                    <span class="badge bg-{% if r.estado=='Confirmada' %}success
+                                        {% elif r.estado=='Pendiente' %}warning
+                                        {% elif r.estado=='Cancelada' %}danger
+                                        {% else %}secondary{% endif %}">
+                                        {{ r.estado }}
+                                    </span>
+                                </td>
+                                <td>${{ "%.2f"|format(r.precio_reserva) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <a href="{{ url_for('reportes') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Volver a Reportes Generales
+        </a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-success">
+            <div class="card-header bg-success text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-check-circle"></i> Pago Completado Exitosamente
+                </h4>
+            </div>
+            <div class="card-body text-center">
+                <div class="mb-4">
+                    <i class="fas fa-check-circle fa-5x text-success mb-3"></i>
+                    <h3>¡Pago Confirmado!</h3>
+                    <p class="lead">Tu reserva ha sido confirmada y el boleto ha sido emitido.</p>
+                </div>
+
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="mb-0">Detalles del Boleto</h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6 text-start">
+                                <p><strong>Número de Boleto:</strong> {{ boleto.id_boleto }}</p>
+                                <p><strong>Vuelo:</strong> {{ reserva.origen }} → {{ reserva.destino }}</p>
+                                <p><strong>Fecha de Vuelo:</strong> {{ reserva.fecha }}</p>
+                                <p><strong>Hora Salida:</strong> {{ reserva.hora_salida }}</p>
+                            </div>
+                            <div class="col-md-6 text-start">
+                                <p><strong>Pasajero:</strong> {{ reserva.pasajero }}</p>
+                                <p><strong>Precio Final:</strong> ${{ "%.2f"|format(precio_final) }}</p>
+                                <p><strong>Fecha de Emisión:</strong> {{ boleto.fecha_compra }}</p>
+                                <p><strong>Estado:</strong> <span class="badge bg-success">Activo</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Instrucciones:</strong> Presenta este número de boleto ({{ boleto.id_boleto }}) 
+                    en el mostrador de la aerolínea. Recomendamos llegar 2 horas antes del vuelo.
+                </div>
+
+                <div class="d-grid gap-2 col-md-6 mx-auto">
+                    <a href="{{ url_for('boletos') }}" class="btn btn-primary">
+                        <i class="fas fa-ticket-alt"></i> Ver Mis Boletos
+                    </a>
+                    <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-home"></i> Volver al Inicio
+                    </a>
+                </div>
+
+                <hr class="my-4">
+                <small class="text-muted">
+                    Puedes imprimir esta página como comprobante. 
+                    También recibirás un correo electrónico con los detalles.
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 mb-4">
+        <h1><i class="fas fa-search"></i> Consulta de Disponibilidad</h1>
+        <p class="lead text-muted">Busca vuelos disponibles por origen, destino y fecha</p>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">Buscar Vuelos</h5>
+            </div>
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('disponibilidad') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Origen</label>
+                        <select class="form-select" name="origen">
+                            <option value="">Todos los orígenes</option>
+                            {% for ciudad in ciudades %}
+                            <option value="{{ ciudad }}" {% if origen == ciudad %}selected{% endif %}>
+                                {{ ciudad }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Destino</label>
+                        <select class="form-select" name="destino">
+                            <option value="">Todos los destinos</option>
+                            {% for ciudad in ciudades %}
+                            <option value="{{ ciudad }}" {% if destino == ciudad %}selected{% endif %}>
+                                {{ ciudad }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Fecha</label>
+                        <input type="date" class="form-control" name="fecha" 
+                               value="{{ fecha }}">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Buscar Vuelos
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Información</h5>
+        </div>
+        <div class="card-body">
+            <p><strong>Vuelos nacionales disponibles entre:</strong></p>
+            <ul>
+                {% for ciudad in ciudades %}
+                <li>{{ ciudad }}</li>
+                {% endfor %}
+            </ul>
+            
+            <div class="alert alert-info">
+                <i class="fas fa-info-circle"></i>
+                <strong>Todos los vuelos son nacionales</strong><br>
+                <small>Los precios incluyen: Recorrido + Tipo de Avión</small>
+                <br><br>
+                <strong>Multiplicadores por fabricante:</strong><br>
+                <small>• Airbus: ×0.9 (más económico)<br>• Embraer: ×1.0 (intermedio)<br>• Boeing: ×1.2 (más caro)</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if vuelos %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-plane"></i> Resultados de la Búsqueda
+                    <span class="badge bg-light text-dark ms-2">{{ vuelos|length }} vuelos encontrados</span>
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Vuelo</th>
+                                <th>Origen → Destino</th>
+                                <th>Fecha</th>
+                                <th>Hora Salida</th>
+                                <th>Aerolínea</th>
+                                <th>Asientos Disponibles</th>
+                                <th>Precio Base</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vuelo in vuelos %}
+                            <tr>
+                                <td>#{{ vuelo.id_vuelo }}</td>
+                                <td><strong>{{ vuelo.origen }}</strong> → <strong>{{ vuelo.destino }}</strong></td>
+                                <td>{{ vuelo.fecha }}</td>
+                                <td>{{ vuelo.hora_salida }}</td>
+                                <td>{{ vuelo.aerolinea }}</td>
+                                <td>
+                                    <span class="badge {% if vuelo.asientos_disponibles > 10 %}bg-success
+                                                      {% elif vuelo.asientos_disponibles > 0 %}bg-warning
+                                                      {% else %}bg-danger{% endif %}">
+                                        {{ vuelo.asientos_disponibles }} asientos
+                                    </span>
+                                </td>
+                                <td>${{ "%.2f"|format(vuelo.precio_base) }}</td>
+                                <td>
+                                    <a href="{{ url_for('nueva_reserva') }}?id_vuelo={{ vuelo.id_vuelo }}" 
+                                       class="btn btn-success btn-sm">
+                                        <i class="fas fa-calendar-plus"></i> Reservar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if not vuelos and (origen or destino or fecha) %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            No se encontraron vuelos con los criterios especificados.
+            {% if origen or destino or fecha %}
+                Intenta con criterios diferentes o deja campos vacíos para ver todos los vuelos disponibles.
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

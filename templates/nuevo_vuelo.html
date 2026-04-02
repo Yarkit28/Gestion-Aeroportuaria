@@ -1,0 +1,511 @@
+{% extends "base.html" %}
+
+{% block title %}Nuevo Vuelo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="display-6">
+                    <i class="fas fa-plane text-primary"></i> Registrar Nuevo Vuelo
+                </h1>
+                <a href="{{ url_for('vuelos') }}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a Vuelos
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mensajes Flash -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show mb-4">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    <div class="row">
+        <!-- Formulario Principal -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="card-title mb-0">
+                        <i class="fas fa-edit"></i> Información del Vuelo
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('nuevo_vuelo') }}">
+                        <div class="row g-3">
+                            <!-- Número de Vuelo (generado automáticamente) -->
+                            <div class="col-md-6">
+                                <label class="form-label">Número de Vuelo</label>
+                                <input type="text" class="form-control bg-light" value="Se generará automáticamente" readonly>
+                                <small class="form-text text-muted">Ej: MX-153045</small>
+                            </div>
+
+                            <!-- Aerolínea -->
+                            <div class="col-md-6">
+                                <label for="id_aerolinea" class="form-label">Aerolínea *</label>
+                                <select class="form-select" id="id_aerolinea" name="id_aerolinea" required>
+                                    <option value="">Seleccionar aerolínea...</option>
+                                    {% for aerolinea in aerolineas %}
+                                        <option value="{{ aerolinea.id_aerolinea }}">
+                                            {{ aerolinea.nombre }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Piloto (opcional) -->
+                            <div class="col-md-6">
+                                <label for="id_piloto" class="form-label">Piloto</label>
+                                <select class="form-select" id="id_piloto" name="id_piloto">
+                                    <option value="">Sin piloto asignado</option>
+                                    {% for piloto in pilotos %}
+                                        <option value="{{ piloto.id_piloto }}">
+                                            {{ piloto.nombre }} (Exp: {{ piloto.experiencia_anios }} años)
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Tipo de Avión -->
+                            <div class="col-md-6">
+                                <label for="id_tipo_avion" class="form-label">Tipo de Avión *</label>
+                                <select class="form-select" id="id_tipo_avion" name="id_tipo_avion" required>
+                                    <option value="">Seleccionar avión...</option>
+                                    {% for avion in tipos_avion %}
+                                        <option value="{{ avion.id_tipo_avion }}" data-fabricante="{{ avion.fabricante }}">
+                                            {{ avion.modelo }} ({{ avion.fabricante }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Origen -->
+                            <div class="col-md-6">
+                                <label for="id_ciudad_origen" class="form-label">Origen *</label>
+                                <select class="form-select" id="id_ciudad_origen" name="id_ciudad_origen" required>
+                                    <option value="">Seleccionar ciudad de origen...</option>
+                                    {% for ciudad in ciudades %}
+                                        <option value="{{ ciudad.id_ciudad }}">
+                                            {{ ciudad.nombre }} {% if ciudad.codigo_aeropuerto %}({{ ciudad.codigo_aeropuerto }}){% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Destino -->
+                            <div class="col-md-6">
+                                <label for="id_ciudad_destino" class="form-label">Destino *</label>
+                                <select class="form-select" id="id_ciudad_destino" name="id_ciudad_destino" required>
+                                    <option value="">Seleccionar ciudad de destino...</option>
+                                    {% for ciudad in ciudades %}
+                                        <option value="{{ ciudad.id_ciudad }}">
+                                            {{ ciudad.nombre }} {% if ciudad.codigo_aeropuerto %}({{ ciudad.codigo_aeropuerto }}){% endif %}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <!-- Fecha -->
+                            <div class="col-md-4">
+                                <label for="fecha" class="form-label">Fecha *</label>
+                                <input type="date" class="form-control" id="fecha" name="fecha" required
+                                       min="{{ now.date().strftime('%Y-%m-%d') if now else '' }}">
+                            </div>
+
+                            <!-- Hora Salida -->
+                            <div class="col-md-4">
+                                <label for="hora_salida" class="form-label">Hora Salida *</label>
+                                <input type="time" class="form-control" id="hora_salida" name="hora_salida" required>
+                            </div>
+
+                            <!-- Hora Llegada -->
+                            <div class="col-md-4">
+                                <label for="hora_llegada" class="form-label">Hora Llegada *</label>
+                                <input type="time" class="form-control" id="hora_llegada" name="hora_llegada" required>
+                            </div>
+
+                            <!-- Calculadora de Precio -->
+                            <div class="col-12 mt-3">
+                                <div class="card border-info">
+                                    <div class="card-header bg-info text-white">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-calculator"></i> Calculadora de Precio
+                                        </h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <div class="col-md-6">
+                                                <p class="mb-2">
+                                                    <strong>Ruta:</strong>
+                                                    <span id="ruta-display" class="text-muted">Seleccione origen y destino</span>
+                                                </p>
+                                                <p class="mb-2">
+                                                    <strong>Fabricante:</strong>
+                                                    <span id="fabricante-display" class="text-muted">Seleccione avión</span>
+                                                </p>
+                                            </div>
+                                            <div class="col-md-6 text-end">
+                                                <h3 class="text-primary" id="precio-display">$0.00</h3>
+                                                <small class="text-muted">Precio base calculado automáticamente</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Botones -->
+                            <div class="col-12 mt-4">
+                                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                                    <button type="reset" class="btn btn-outline-secondary me-md-2">
+                                        <i class="fas fa-redo"></i> Limpiar
+                                    </button>
+                                    <button type="submit" class="btn btn-success">
+                                        <i class="fas fa-save"></i> Registrar Vuelo
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Panel de Información -->
+        <div class="col-lg-4">
+            <!-- Información de Precios -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-money-bill-wave text-success"></i> Precios de Rutas
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Ruta</th>
+                                    <th>Precio</th>
+                                    <th>Duración</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if precios_rutas %}
+                                    {% for ruta in precios_rutas %}
+                                    <tr>
+                                        <td>{{ ruta.origen }} → {{ ruta.destino }}</td>
+                                        <td class="text-success fw-bold">${{ "%.2f"|format(ruta.precio_base) }}</td>
+                                        <td>{{ ruta.duracion_estimada_min }} min</td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="3" class="text-center text-muted py-3">
+                                            <i class="fas fa-info-circle"></i>
+                                            No hay rutas configuradas
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                    <p class="small text-muted mt-2">
+                        <i class="fas fa-info-circle"></i>
+                        Los precios mostrados son la base. El sistema calculará automáticamente
+                        el precio final considerando el fabricante del avión.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Multiplicadores por Fabricante -->
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-plane text-primary"></i> Multiplicadores por Fabricante
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-plane text-primary me-2"></i>
+                                <strong>Airbus</strong>
+                                <small class="d-block text-muted">Aviones europeos</small>
+                            </span>
+                            <span class="badge bg-info rounded-pill">×0.9</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-plane text-success me-2"></i>
+                                <strong>Embraer</strong>
+                                <small class="d-block text-muted">Aviones brasileños</small>
+                            </span>
+                            <span class="badge bg-info rounded-pill">×1.0</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>
+                                <i class="fas fa-plane text-danger me-2"></i>
+                                <strong>Boeing</strong>
+                                <small class="d-block text-muted">Aviones estadounidenses</small>
+                            </span>
+                            <span class="badge bg-info rounded-pill">×1.2</span>
+                        </li>
+                    </ul>
+                    <p class="small text-muted mt-3 mb-0">
+                        <i class="fas fa-lightbulb"></i>
+                        Estos multiplicadores se aplican al precio base de la ruta para
+                        calcular el precio final del boleto turista.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Notas Importantes -->
+            <div class="card shadow-sm">
+                <div class="card-header bg-light">
+                    <h6 class="mb-0">
+                        <i class="fas fa-exclamation-circle text-warning"></i> Notas Importantes
+                    </h6>
+                </div>
+                <div class="card-body">
+                    <ul class="small mb-0">
+                        <li>El precio se calcula automáticamente usando la función MySQL</li>
+                        <li>El tipo de vuelo siempre será "Nacional"</li>
+                        <li>El estado inicial del vuelo será "Programado"</li>
+                        <li>Los asientos se inicializarán automáticamente según la capacidad del avión</li>
+                        <li>La hora de llegada debe ser posterior a la hora de salida</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- JavaScript para la calculadora de precio -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Elementos del formulario
+    const origenSelect = document.getElementById('id_ciudad_origen');
+    const destinoSelect = document.getElementById('id_ciudad_destino');
+    const avionSelect = document.getElementById('id_tipo_avion');
+    const horaSalida = document.getElementById('hora_salida');
+    const horaLlegada = document.getElementById('hora_llegada');
+    const fechaInput = document.getElementById('fecha');
+    
+    // Elementos de visualización
+    const rutaDisplay = document.getElementById('ruta-display');
+    const fabricanteDisplay = document.getElementById('fabricante-display');
+    const precioDisplay = document.getElementById('precio-display');
+    
+    // Precios de rutas desde la base de datos (convertidos a objeto JavaScript)
+    const preciosRecorrido = {
+        {% for ruta in precios_rutas %}
+        '{{ ruta.origen }}-{{ ruta.destino }}': {{ ruta.precio_base }},
+        {% endfor %}
+        // Agregar rutas inversas
+        {% for ruta in precios_rutas %}
+        '{{ ruta.destino }}-{{ ruta.origen }}': {{ ruta.precio_base }},
+        {% endfor %}
+        // Rutas adicionales de tu tabla estática
+        'Ciudad de México-Guanajuato': 800,
+        'Ciudad de México-Cancún': 2500,
+        'Ciudad de México-Querétaro': 600,
+        'Guanajuato-Ciudad de México': 800,
+        'Guanajuato-Cancún': 2800,
+        'Guanajuato-Querétaro': 700,
+        'Cancún-Ciudad de México': 2500,
+        'Cancún-Guanajuato': 2800,
+        'Cancún-Querétaro': 2900,
+        'Querétaro-Ciudad de México': 600,
+        'Querétaro-Guanajuato': 700,
+        'Querétaro-Cancún': 2900
+    };
+    
+    // Multiplicadores por fabricante
+    const multiplicadores = {
+        'Airbus': 0.9,
+        'Embraer': 1.0,
+        'Boeing': 1.2
+    };
+    
+    // Nombres de ciudades por ID
+    const ciudadesNombres = {
+        {% for ciudad in ciudades %}
+        '{{ ciudad.id_ciudad }}': '{{ ciudad.nombre }}',
+        {% endfor %}
+        // Ciudades adicionales
+        'Guanajuato': 'Guanajuato',
+        'Querétaro': 'Querétaro'
+    };
+    
+    // Calcular precio en tiempo real
+    function calcularPrecio() {
+        const origenId = origenSelect.value;
+        const destinoId = destinoSelect.value;
+        const origenNombre = ciudadesNombres[origenId] || origenSelect.options[origenSelect.selectedIndex]?.text.split('(')[0].trim();
+        const destinoNombre = ciudadesNombres[destinoId] || destinoSelect.options[destinoSelect.selectedIndex]?.text.split('(')[0].trim();
+        const fabricante = avionSelect.options[avionSelect.selectedIndex]?.getAttribute('data-fabricante');
+        
+        let precioBase = 1000; // Precio por defecto
+        let mensajeRuta = 'Seleccione origen y destino';
+        
+        if (origenNombre && destinoNombre && origenNombre !== 'Seleccionar ciudad de origen...' && destinoNombre !== 'Seleccionar ciudad de destino...') {
+            const clave = `${origenNombre}-${destinoNombre}`;
+            const claveInversa = `${destinoNombre}-${origenNombre}`;
+            
+            // Buscar precio en rutas configuradas
+            if (preciosRecorrido[clave]) {
+                precioBase = preciosRecorrido[clave];
+                mensajeRuta = `${origenNombre} → ${destinoNombre}`;
+            } else if (preciosRecorrido[claveInversa]) {
+                precioBase = preciosRecorrido[claveInversa];
+                mensajeRuta = `${origenNombre} → ${destinoNombre}`;
+            } else {
+                mensajeRuta = `${origenNombre} → ${destinoNombre} (precio base)`;
+            }
+        }
+        
+        // Aplicar multiplicador del fabricante
+        let multiplicador = 1.0;
+        if (fabricante) {
+            multiplicador = multiplicadores[fabricante] || 1.0;
+            fabricanteDisplay.textContent = `${fabricante} (×${multiplicador})`;
+        } else {
+            fabricanteDisplay.textContent = 'Seleccione avión';
+        }
+        
+        const precioFinal = precioBase * multiplicador;
+        
+        // Actualizar display
+        rutaDisplay.textContent = mensajeRuta;
+        precioDisplay.textContent = `$${precioFinal.toFixed(2)}`;
+    }
+    
+    // Validar horarios
+    function validarHorarios() {
+        if (horaSalida.value && horaLlegada.value) {
+            if (horaSalida.value >= horaLlegada.value) {
+                horaLlegada.classList.add('is-invalid');
+                horaLlegada.classList.remove('is-valid');
+            } else {
+                horaLlegada.classList.remove('is-invalid');
+                horaLlegada.classList.add('is-valid');
+            }
+        }
+    }
+    
+    // Deshabilitar opción seleccionada en el otro select
+    function sincronizarSelects() {
+        const origenValue = origenSelect.value;
+        const destinoValue = destinoSelect.value;
+        
+        // Habilitar todas las opciones
+        Array.from(origenSelect.options).forEach(option => {
+            if (option.value !== '') option.disabled = false;
+        });
+        Array.from(destinoSelect.options).forEach(option => {
+            if (option.value !== '') option.disabled = false;
+        });
+        
+        // Deshabilitar la opción seleccionada en el otro select
+        if (origenValue) {
+            const optionToDisable = destinoSelect.querySelector(`option[value="${origenValue}"]`);
+            if (optionToDisable) optionToDisable.disabled = true;
+        }
+        
+        if (destinoValue) {
+            const optionToDisable = origenSelect.querySelector(`option[value="${destinoValue}"]`);
+            if (optionToDisable) optionToDisable.disabled = true;
+        }
+        
+        calcularPrecio();
+    }
+    
+    // Configurar fecha mínima (hoy)
+    if (fechaInput) {
+        const today = new Date().toISOString().split('T')[0];
+        fechaInput.min = today;
+        if (!fechaInput.value) {
+            fechaInput.value = today;
+        }
+    }
+    
+    // Event Listeners
+    origenSelect.addEventListener('change', sincronizarSelects);
+    destinoSelect.addEventListener('change', sincronizarSelects);
+    avionSelect.addEventListener('change', calcularPrecio);
+    horaSalida.addEventListener('change', validarHorarios);
+    horaLlegada.addEventListener('change', validarHorarios);
+    
+    // Validación del formulario
+    document.querySelector('form').addEventListener('submit', function(e) {
+        const origenValue = origenSelect.value;
+        const destinoValue = destinoSelect.value;
+        
+        // Validar que origen y destino sean diferentes
+        if (origenValue && destinoValue && origenValue === destinoValue) {
+            e.preventDefault();
+            alert('❌ Error: Origen y destino no pueden ser iguales');
+            origenSelect.focus();
+            return false;
+        }
+        
+        // Validar horarios
+        if (horaSalida.value && horaLlegada.value && horaSalida.value >= horaLlegada.value) {
+            e.preventDefault();
+            alert('❌ Error: La hora de llegada debe ser posterior a la hora de salida');
+            horaLlegada.focus();
+            return false;
+        }
+        
+        // Validar fecha futura
+        if (fechaInput.value && new Date(fechaInput.value) < new Date()) {
+            e.preventDefault();
+            alert('❌ Error: La fecha debe ser hoy o en el futuro');
+            fechaInput.focus();
+            return false;
+        }
+        
+        return true;
+    });
+    
+    // Inicializar
+    sincronizarSelects();
+    calcularPrecio();
+});
+</script>
+
+<style>
+/* Estilos adicionales */
+.list-group-item {
+    border-left: none;
+    border-right: none;
+}
+.list-group-item:first-child {
+    border-top: none;
+}
+.list-group-item:last-child {
+    border-bottom: none;
+}
+.bg-light {
+    background-color: #f8f9fa !important;
+}
+.form-select:disabled {
+    background-color: #e9ecef;
+    opacity: 0.7;
+}
+.is-valid {
+    border-color: #198754 !important;
+}
+.is-invalid {
+    border-color: #dc3545 !important;
+}
+</style>
+{% endblock %}

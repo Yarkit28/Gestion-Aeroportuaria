@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h4 class="card-title mb-0">
+                    <i class="fas fa-user-plus"></i> Registrar Nuevo Pasajero
+                </h4>
+            </div>
+            <div class="card-body">
+                <!-- Mostrar mensajes flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ category }} alert-dismissible fade show">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <form method="POST">
+                    <div class="mb-3">
+                        <label for="nombre" class="form-label">Nombre Completo</label>
+                        <input type="text" class="form-control" id="nombre" name="nombre" required 
+                               placeholder="Ej: Juan Pérez García">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edad" class="form-label">Edad</label>
+                        <input type="number" class="form-control" id="edad" name="edad" 
+                               min="0" max="120" required placeholder="Ej: 25">
+                    </div>
+                    
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-save"></i> Registrar Pasajero
+                        </button>
+                        <a href="{{ url_for('pasajeros') }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Volver a Pasajeros
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Información del tipo de pasajero -->
+        <div class="card mt-3">
+            <div class="card-header bg-light">
+                <h6 class="mb-0"><i class="fas fa-info-circle"></i> Información</h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    El tipo de pasajero se calcula automáticamente:
+                    <ul class="mb-0 mt-2">
+                        <li><strong>Niño:</strong> 0-11 años</li>
+                        <li><strong>Adulto:</strong> 12-59 años</li>
+                        <li><strong>Adulto Mayor:</strong> 60+ años</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

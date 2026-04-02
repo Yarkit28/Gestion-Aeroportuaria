@@ -1,0 +1,312 @@
+/* ===== VARIABLES DE TEMA ===== */
+:root {
+    /* Tema Claro (Default) */
+    --color-bg-primary: #f8f9fa;
+    --color-bg-secondary: #ffffff;
+    --color-bg-tertiary: #e9ecef;
+    
+    --color-text-primary: #212529;
+    --color-text-secondary: #6c757d;
+    --color-text-muted: #adb5bd;
+    
+    --color-border: #dee2e6;
+    --color-shadow: rgba(0, 0, 0, 0.1);
+    
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    
+    --input-bg: #ffffff;
+    --input-border: #ced4da;
+    --input-text: #212529;
+    
+    --footer-bg: #343a40;
+    --footer-text: #ffffff;
+}
+
+[data-theme="dark"] {
+    /* Tema Oscuro */
+    --color-bg-primary: #121212;
+    --color-bg-secondary: #1e1e1e;
+    --color-bg-tertiary: #2d2d2d;
+    
+    --color-text-primary: #e9ecef;
+    --color-text-secondary: #adb5bd;
+    --color-text-muted: #6c757d;
+    
+    --color-border: #495057;
+    --color-shadow: rgba(0, 0, 0, 0.3);
+    
+    --card-bg: #1e1e1e;
+    --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.5);
+    
+    --input-bg: #2d2d2d;
+    --input-border: #495057;
+    --input-text: #e9ecef;
+    
+    --footer-bg: #1a1a1a;
+    --footer-text: #e9ecef;
+}
+
+/* ===== ESTILOS BASE ===== */
+* {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+body {
+    background-color: var(--color-bg-primary) !important;
+    color: var(--color-text-primary) !important;
+}
+
+/* ===== COMPONENTES ===== */
+.card {
+    background-color: var(--card-bg) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+}
+
+.table {
+    color: var(--color-text-primary) !important;
+    background-color: var(--color-bg-secondary) !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--color-bg-tertiary) !important;
+}
+
+.form-control {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: var(--input-border) !important;
+}
+
+.form-control:focus {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    border-color: #0d6efd !important;
+}
+
+.alert {
+    background-color: var(--color-bg-secondary) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+}
+
+/* ===== SWITCH DE TEMA ===== */
+.theme-switch-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.theme-switch {
+    display: inline-block;
+    position: relative;
+    width: 60px;
+    height: 30px;
+}
+
+.theme-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 34px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 22px;
+    width: 22px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #0d6efd !important;
+}
+
+input:checked + .slider:before {
+    transform: translateX(30px);
+}
+
+.slider .fa-sun {
+    position: absolute;
+    left: 8px;
+    top: 6px;
+    color: #f39c12;
+    font-size: 14px;
+}
+
+.slider .fa-moon {
+    position: absolute;
+    right: 8px;
+    top: 6px;
+    color: #f1c40f;
+    font-size: 14px;
+}
+
+/* ===== FOOTER ===== */
+.footer {
+    background-color: var(--footer-bg) !important;
+    color: var(--footer-text) !important;
+}
+
+.footer .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ===== UTILIDADES ===== */
+.bg-light {
+    background-color: var(--color-bg-tertiary) !important;
+}
+
+.text-muted {
+    color: var(--color-text-muted) !important;
+}
+
+.border {
+    border-color: var(--color-border) !important;
+}
+
+.border-top {
+    border-top-color: var(--color-border) !important;
+}
+
+/* ===== TABLAS ===== */
+.table th {
+    background-color: var(--color-bg-tertiary) !important;
+    border-color: var(--color-border) !important;
+    color: var(--color-text-primary) !important;
+}
+
+.table td {
+    border-color: var(--color-border) !important;
+}
+
+/* ===== DROPDOWNS ===== */
+.dropdown-menu {
+    background-color: var(--card-bg) !important;
+    border-color: var(--color-border) !important;
+}
+
+.dropdown-item {
+    color: var(--color-text-primary) !important;
+}
+
+.dropdown-item:hover {
+    background-color: var(--color-bg-tertiary) !important;
+}
+
+/* ===== FORMULARIOS ===== */
+select.form-control {
+    background-color: var(--input-bg) !important;
+    color: var(--input-text) !important;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23adb5bd' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e") !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    .theme-toggle-mobile {
+        margin-top: 10px;
+    }
+}
+
+/* ===== COLORES POR SECCIÓN ===== */
+/* Vuelos - Azul (como el bg-primary de Bootstrap) */
+.border-vuelos {
+    border-color: #0d6efd !important;
+}
+/* Pasajeros - Amarillo/Dorado */
+.color-pasajeros {
+    color: #ffc107 !important;
+}
+
+.bg-pasajeros {
+    background-color: #ffc107 !important;
+}
+
+.btn-outline-pasajeros {
+    color: #ffc107 !important;
+    border-color: #ffc107 !important;
+}
+
+.btn-outline-pasajeros:hover {
+    color: #000 !important;
+    background-color: #ffc107 !important;
+}
+
+.border-pasajeros {
+    border-color: #ffc107 !important;
+}
+
+/* Reservas - Verde */
+.color-reservas {
+    color: #198754 !important;
+}
+
+.bg-reservas {
+    background-color: #198754 !important;
+}
+
+.btn-outline-reservas {
+    color: #198754 !important;
+    border-color: #198754 !important;
+}
+
+.btn-outline-reservas:hover {
+    color: #fff !important;
+    background-color: #198754 !important;
+}
+
+.border-reservas {
+    border-color: #198754 !important;
+}
+
+/* Reportes - Azul */
+.color-reportes {
+    color: #0dcaf0 !important;
+}
+
+.bg-reportes {
+    background-color: #0dcaf0 !important;
+}
+
+.btn-outline-reportes {
+    color: #0dcaf0 !important;
+    border-color: #0dcaf0 !important;
+}
+
+.btn-outline-reportes:hover {
+    color: #000 !important;
+    background-color: #0dcaf0 !important;
+}
+
+.border-reportes {
+    border-color: #0dcaf0 !important;
+}
+
+/* ===== AJUSTES PARA TEMA OSCURO ===== */
+[data-theme="dark"] .btn-outline-pasajeros:hover {
+    color: #121212 !important;
+}
+
+[data-theme="dark"] .btn-outline-reservas:hover {
+    color: #121212 !important;
+}
+
+[data-theme="dark"] .btn-outline-reportes:hover {
+    color: #121212 !important;
+}

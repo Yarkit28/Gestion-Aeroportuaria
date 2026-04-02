@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Reserva</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 30px;
+            text-align: center;
+            border-bottom: 3px solid #28a745;
+            padding-bottom: 10px;
+        }
+        .section-title {
+            background-color: #e9ecef;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            margin-bottom: 15px;
+            font-weight: bold;
+            color: #495057;
+        }
+        .alert-info {
+            background-color: #e8f4fc;
+            border-color: #b6e0fe;
+            color: #0c5460;
+            border-radius: 8px;
+        }
+        .preview-box {
+            background-color: #f8f9fa;
+            border: 2px dashed #dee2e6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+        .price-highlight {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #28a745;
+            text-align: center;
+            padding: 10px;
+            background-color: #f0f9f0;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .passenger-type {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        .child-type { background-color: #e3f2fd; color: #1565c0; }
+        .adult-type { background-color: #e8f5e9; color: #2e7d32; }
+        .senior-type { background-color: #fff3e0; color: #ef6c00; }
+    </style>
+</head>
+<body>
+    <div class="form-container">
+        <h1><i class="fas fa-ticket-alt"></i> Nueva Reserva</h1>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                        {{ message|safe }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" id="reservaForm">
+            
+            <!-- ============================= -->
+            <!-- SECCIÓN 1: SELECCIÓN DE VUELO -->
+            <!-- ============================= -->
+            <div class="section-title">
+                <i class="fas fa-plane"></i> Paso 1: Seleccionar Vuelo
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="id_vuelo" class="form-label">Vuelo Disponible</label>
+                    <select class="form-select" id="id_vuelo" name="id_vuelo" required onchange="mostrarDetallesVuelo()">
+                        <option value="">Seleccione un vuelo...</option>
+                        {% for vuelo in vuelos %}
+                        <option value="{{ vuelo.id_vuelo }}" 
+                                data-precio="{{ vuelo.precio_turista }}"
+                                data-origen="{{ vuelo.origen }}"
+                                data-destino="{{ vuelo.destino }}"
+                                data-fecha="{{ vuelo.fecha }}"
+                                data-hora-salida="{{ vuelo.hora_salida }}"
+                                data-hora-llegada="{{ vuelo.hora_llegada }}"
+                                data-turista="{{ vuelo.turista_disponible }}"
+                                data-ejecutiva="{{ vuelo.ejecutiva_disponible }}"
+                                data-primera="{{ vuelo.primera_disponible }}">
+                            {{ vuelo.numero_vuelo }} - {{ vuelo.origen }} → {{ vuelo.destino }}
+                            ({{ vuelo.fecha }} {{ vuelo.hora_salida }})
+                            - ${{ vuelo.precio_turista }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <!-- Detalles del vuelo seleccionado -->
+            <div id="detallesVuelo" class="preview-box">
+                <h5><i class="fas fa-info-circle"></i> Detalles del Vuelo Seleccionado</h5>
+                <p><strong>Ruta:</strong> <span id="ruta"></span></p>
+                <p><strong>Fecha y Hora:</strong> <span id="fechaHora"></span></p>
+                <p><strong>Precio base (Turista):</strong> $<span id="precioBase"></span></p>
+                <p><strong>Disponibilidad:</strong>
+                    <span class="badge bg-success" id="dispoTurista"></span> Turista,
+                    <span class="badge bg-info" id="dispoEjecutiva"></span> Ejecutiva,
+                    <span class="badge bg-warning" id="dispoPrimera"></span> Primera
+                </p>
+            </div>
+            
+            <!-- ================================== -->
+            <!-- SECCIÓN 2: TIPO DE ASIENTO -->
+            <!-- ================================== -->
+            <div class="section-title">
+                <i class="fas fa-chair"></i> Paso 2: Seleccionar Clase de Asiento
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label for="id_tipo_asiento" class="form-label">Clase de Asiento</label>
+                    <select class="form-select" id="id_tipo_asiento" name="id_tipo_asiento" required onchange="calcularPrecio()">
+                        <option value="">Seleccione clase...</option>
+                        {% for asiento in tipos_asiento %}
+                        <option value="{{ asiento.id_tipo_asiento }}" 
+                                data-multiplicador="{{ asiento.multiplicador_precio }}"
+                                data-descripcion="{{ asiento.descripcion }}">
+                            {{ asiento.descripcion }} (Multiplicador: {{ asiento.multiplicador_precio }}x)
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <!-- ================================== -->
+            <!-- SECCIÓN 3: INFORMACIÓN DEL PASAJERO -->
+            <!-- ================================== -->
+            <div class="section-title">
+                <i class="fas fa-user"></i> Paso 3: Información del Pasajero
+            </div>
+            
+            <div class="row g-3">
+                <div class="col-md-12">
+                    <label class="form-label">Seleccionar Pasajero</label>
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="radio" name="tipo_pasajero" id="pasajeroExistente" value="existente" checked onchange="togglePasajero()">
+                        <label class="form-check-label" for="pasajeroExistente">
+                            Pasajero existente
+                        </label>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="tipo_pasajero" id="pasajeroNuevo" value="nuevo" onchange="togglePasajero()">
+                        <label class="form-check-label" for="pasajeroNuevo">
+                            Nuevo pasajero
+                        </label>
+                    </div>
+                    
+                    <!-- Pasajero existente -->
+                    <div id="seccionExistente">
+                        <select class="form-select" id="id_pasajero" name="id_pasajero" onchange="mostrarInfoPasajero()">
+                            <option value="">Seleccione un pasajero...</option>
+                            {% for pasajero in pasajeros %}
+                            <option value="{{ pasajero.id_pasajero }}" 
+                                    data-edad="{{ pasajero.edad }}"
+                                    data-nombre="{{ pasajero.nombre }}">
+                                {{ pasajero.nombre }} ({{ pasajero.edad }} años)
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <div id="infoPasajero" class="mt-2" style="display: none;">
+                            <p><strong>Edad:</strong> <span id="edadPasajero"></span> años</p>
+                            <p><strong>Tipo:</strong> <span id="tipoPasajero" class="passenger-type"></span></p>
+                        </div>
+                    </div>
+                    
+                    <!-- Nuevo pasajero -->
+                    <div id="seccionNuevo" style="display: none;">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label for="nombre_nuevo" class="form-label">Nombre completo</label>
+                                <input type="text" class="form-control" id="nombre_nuevo" name="nombre_nuevo" placeholder="Ej: Juan Pérez">
+                            </div>
+                            <div class="col-md-3">
+                                <label for="edad_nuevo" class="form-label">Edad</label>
+                                <input type="number" class="form-control" id="edad_nuevo" name="edad_nuevo" min="0" max="120" onchange="mostrarTipoNuevo()">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="form-label">Tipo</label>
+                                <div id="tipoNuevoPasajero" class="passenger-type adult-type">Adulto</div>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="email_nuevo" class="form-label">Email (opcional)</label>
+                                <input type="email" class="form-control" id="email_nuevo" name="email_nuevo" placeholder="ejemplo@correo.com">
+                            </div>
+                            <div class="col-md-6">
+                                <label for="telefono_nuevo" class="form-label">Teléfono (opcional)</label>
+                                <input type="tel" class="form-control" id="telefono_nuevo" name="telefono_nuevo" placeholder="+52 123 456 7890">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- ================================== -->
+            <!-- SECCIÓN 4: RESUMEN Y PRECIO -->
+            <!-- ================================== -->
+            <div class="section-title">
+                <i class="fas fa-calculator"></i> Paso 4: Resumen y Confirmación
+            </div>
+            
+            <div id="resumenPrecio" class="preview-box">
+                <h5><i class="fas fa-receipt"></i> Resumen de Precios</h5>
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Precio base:</strong> $<span id="precioBaseResumen">0.00</span></p>
+                        <p><strong>Clase de asiento:</strong> <span id="claseAsientoResumen">-</span></p>
+                        <p><strong>Multiplicador asiento:</strong> <span id="multiplicadorAsientoResumen">1.00</span>x</p>
+                        <p><strong>Precio sin descuento:</strong> $<span id="precioSinDescuento">0.00</span></p>
+                        <p><strong>Tipo de pasajero:</strong> <span id="tipoPasajeroResumen">-</span></p>
+                        <p><strong>Descuento aplicado:</strong> <span id="descuentoResumen">0%</span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="price-highlight">
+                            <i class="fas fa-money-bill-wave"></i><br>
+                            <small>Total a pagar:</small><br>
+                            $<span id="precioFinal">0.00</span>
+                        </div>
+                        <div class="alert alert-info mt-3">
+                            <i class="fas fa-clock"></i> <strong>Importante:</strong> 
+                            La reserva será válida por 24 horas. Debes completar el pago en ese tiempo.
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Campo oculto para el precio final -->
+            <input type="hidden" id="precio_final_input" name="precio" value="0">
+            
+            <button type="submit" class="btn btn-success w-100 py-2 mt-4" id="btnReservar" disabled>
+                <i class="fas fa-bookmark"></i> Confirmar Reserva
+            </button>
+        </form>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // =============================================
+        // FUNCIONES JAVASCRIPT PARA EL CÁLCULO EN TIEMPO REAL
+        // =============================================
+        
+        function mostrarDetallesVuelo() {
+            const selectVuelo = document.getElementById('id_vuelo');
+            const detallesDiv = document.getElementById('detallesVuelo');
+            
+            if (selectVuelo.value) {
+                const option = selectVuelo.options[selectVuelo.selectedIndex];
+                document.getElementById('ruta').textContent = `${option.dataset.origen} → ${option.dataset.destino}`;
+                document.getElementById('fechaHora').textContent = `${option.dataset.fecha} ${option.dataset.horaSalida} - ${option.dataset.horallegada}`;
+                document.getElementById('precioBase').textContent = option.dataset.precio;
+                document.getElementById('dispoTurista').textContent = option.dataset.turista || '0';
+                document.getElementById('dispoEjecutiva').textContent = option.dataset.ejecutiva || '0';
+                document.getElementById('dispoPrimera').textContent = option.dataset.primera || '0';
+                detallesDiv.style.display = 'block';
+                calcularPrecio();
+            } else {
+                detallesDiv.style.display = 'none';
+            }
+        }
+        
+        function togglePasajero() {
+            const existente = document.getElementById('pasajeroExistente').checked;
+            document.getElementById('seccionExistente').style.display = existente ? 'block' : 'none';
+            document.getElementById('seccionNuevo').style.display = existente ? 'none' : 'block';
+            calcularPrecio();
+        }
+        
+        function mostrarInfoPasajero() {
+            const selectPasajero = document.getElementById('id_pasajero');
+            const infoDiv = document.getElementById('infoPasajero');
+            
+            if (selectPasajero.value) {
+                const option = selectPasajero.options[selectPasajero.selectedIndex];
+                const edad = parseInt(option.dataset.edad);
+                
+                document.getElementById('edadPasajero').textContent = edad;
+                
+                let tipo = '';
+                let clase = '';
+                if (edad < 12) {
+                    tipo = 'Niño';
+                    clase = 'child-type';
+                } else if (edad >= 60) {
+                    tipo = 'Adulto Mayor';
+                    clase = 'senior-type';
+                } else {
+                    tipo = 'Adulto';
+                    clase = 'adult-type';
+                }
+                
+                const tipoSpan = document.getElementById('tipoPasajero');
+                tipoSpan.textContent = tipo;
+                tipoSpan.className = `passenger-type ${clase}`;
+                
+                infoDiv.style.display = 'block';
+                calcularPrecio();
+            } else {
+                infoDiv.style.display = 'none';
+            }
+        }
+        
+        function mostrarTipoNuevo() {
+            const edadInput = document.getElementById('edad_nuevo');
+            const tipoDiv = document.getElementById('tipoNuevoPasajero');
+            
+            if (edadInput.value) {
+                const edad = parseInt(edadInput.value);
+                let tipo = '';
+                let clase = '';
+                
+                if (edad < 12) {
+                    tipo = 'Niño (25% descuento)';
+                    clase = 'child-type';
+                } else if (edad >= 60) {
+                    tipo = 'Adulto Mayor (30% descuento)';
+                    clase = 'senior-type';
+                } else {
+                    tipo = 'Adulto (precio normal)';
+                    clase = 'adult-type';
+                }
+                
+                tipoDiv.textContent = tipo;
+                tipoDiv.className = `passenger-type ${clase}`;
+                calcularPrecio();
+            }
+        }
+        
+        function calcularPrecio() {
+            // Obtener elementos
+            const vueloSelect = document.getElementById('id_vuelo');
+            const asientoSelect = document.getElementById('id_tipo_asiento');
+            const pasajeroExistente = document.getElementById('pasajeroExistente').checked;
+            const resumenDiv = document.getElementById('resumenPrecio');
+            const btnReservar = document.getElementById('btnReservar');
+            
+            // Validar que todo esté seleccionado
+            if (!vueloSelect.value || !asientoSelect.value) {
+                resumenDiv.style.display = 'none';
+                btnReservar.disabled = true;
+                return;
+            }
+            
+            // Obtener datos del vuelo
+            const vueloOption = vueloSelect.options[vueloSelect.selectedIndex];
+            const precioBase = parseFloat(vueloOption.dataset.precio) || 0;
+            
+            // Obtener datos del asiento
+            const asientoOption = asientoSelect.options[asientoSelect.selectedIndex];
+            const multiplicadorAsiento = parseFloat(asientoOption.dataset.multiplicador) || 1;
+            const descripcionAsiento = asientoOption.dataset.descripcion || '';
+            
+            // Calcular precio sin descuento
+            const precioSinDescuento = precioBase * multiplicadorAsiento;
+            
+            // Determinar descuento por edad
+            let descuento = 0;
+            let tipoPasajero = '';
+            let multiplicadorEdad = 1;
+            
+            if (pasajeroExistente) {
+                const pasajeroSelect = document.getElementById('id_pasajero');
+                if (pasajeroSelect.value) {
+                    const pasajeroOption = pasajeroSelect.options[pasajeroSelect.selectedIndex];
+                    const edad = parseInt(pasajeroOption.dataset.edad);
+                    
+                    if (edad < 12) {
+                        descuento = 25;
+                        multiplicadorEdad = 0.75;
+                        tipoPasajero = 'Niño';
+                    } else if (edad >= 60) {
+                        descuento = 30;
+                        multiplicadorEdad = 0.70;
+                        tipoPasajero = 'Adulto Mayor';
+                    } else {
+                        descuento = 0;
+                        multiplicadorEdad = 1.00;
+                        tipoPasajero = 'Adulto';
+                    }
+                }
+            } else {
+                const edadInput = document.getElementById('edad_nuevo');
+                if (edadInput.value) {
+                    const edad = parseInt(edadInput.value);
+                    
+                    if (edad < 12) {
+                        descuento = 25;
+                        multiplicadorEdad = 0.75;
+                        tipoPasajero = 'Niño';
+                    } else if (edad >= 60) {
+                        descuento = 30;
+                        multiplicadorEdad = 0.70;
+                        tipoPasajero = 'Adulto Mayor';
+                    } else {
+                        descuento = 0;
+                        multiplicadorEdad = 1.00;
+                        tipoPasajero = 'Adulto';
+                    }
+                }
+            }
+            
+            // Calcular precio final
+            const precioFinal = precioSinDescuento * multiplicadorEdad;
+            
+            // Actualizar la vista
+            document.getElementById('precioBaseResumen').textContent = precioBase.toFixed(2);
+            document.getElementById('claseAsientoResumen').textContent = descripcionAsiento;
+            document.getElementById('multiplicadorAsientoResumen').textContent = multiplicadorAsiento.toFixed(2);
+            document.getElementById('precioSinDescuento').textContent = precioSinDescuento.toFixed(2);
+            document.getElementById('tipoPasajeroResumen').textContent = tipoPasajero;
+            document.getElementById('descuentoResumen').textContent = `${descuento}%`;
+            document.getElementById('precioFinal').textContent = precioFinal.toFixed(2);
+            
+            // Actualizar campo oculto
+            document.getElementById('precio_final_input').value = precioFinal.toFixed(2);
+            
+            // Mostrar resumen y habilitar botón
+            resumenDiv.style.display = 'block';
+            btnReservar.disabled = !(vueloSelect.value && asientoSelect.value && 
+                (pasajeroExistente ? document.getElementById('id_pasajero').value : 
+                 document.getElementById('nombre_nuevo').value && document.getElementById('edad_nuevo').value));
+        }
+        
+        // Inicializar
+        document.addEventListener('DOMContentLoaded', function() {
+            togglePasajero();
+            
+            // Agregar event listeners a todos los campos
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('change', calcularPrecio);
+                if (input.type === 'text' || input.type === 'number') {
+                    input.addEventListener('input', calcularPrecio);
+                }
+            });
+        });
+    </script>
+</body>
+</html>

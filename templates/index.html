@@ -1,0 +1,223 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center mb-5">
+        <h1 class="display-4 text-primary">
+            <i class="fas fa-plane"></i> Sistema de Gestión Aeroportuaria
+        </h1>
+        <p class="lead text-muted">Bienvenido al sistema integral de reservas y gestión de vuelos</p>
+    </div>
+</div>
+
+<!-- Estadísticas Principales - TODAS CON FONDO OSCURO -->
+<div class="row mb-4">
+    <!-- TARJETA DE VUELOS - MODIFICADA -->
+    <div class="col-md-3 mb-3">
+        <div class="card bg-dark text-white"> <!-- CAMBIADO: Fondo oscuro como las otras -->
+            <div class="card-body text-center">
+                <h2 class="card-title text-primary">{{ total_vuelos|default(0) }}</h2> <!-- Número en azul -->
+                <p class="card-text">Vuelos Programados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-dark text-white"> <!-- CAMBIADO: Fondo oscuro -->
+            <div class="card-body text-center">
+                <h2 class="card-title text-warning">{{ total_pasajeros|default(0) }}</h2> <!-- Número en amarillo -->
+                <p class="card-text">Pasajeros Registrados</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-dark text-white"> <!-- CAMBIADO: Fondo oscuro -->
+            <div class="card-body text-center">
+                <h2 class="card-title text-success">{{ total_boletos|default(0) }}</h2> <!-- Número en verde -->
+                <p class="card-text">Reservas Confirmadas</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-dark text-white"> <!-- CAMBIADO: Fondo oscuro -->
+            <div class="card-body text-center">
+                <h2 class="card-title text-info">${{ "%.2f"|format(ingresos_totales|default(0)) }}</h2> <!-- Número en azul -->
+                <p class="card-text">Ingresos Totales</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Acciones Rápidas (sin cambios) -->
+<div class="row mb-5">
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-plane-departure fa-3x text-primary mb-3"></i>
+                <h5>Gestión de Vuelos</h5>
+                <p class="text-muted">Administra vuelos programados</p>
+                <a href="{{ url_for('vuelos') }}" class="btn btn-outline-primary">
+                    <i class="fas fa-list"></i> Ver Vuelos
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x color-pasajeros mb-3"></i>
+                <h5>Gestión de Pasajeros</h5>
+                <p class="text-muted">Ver y administrar pasajeros</p>
+                <a href="{{ url_for('pasajeros') }}" class="btn btn-outline-pasajeros">
+                    <i class="fas fa-users"></i> Ver Pasajeros
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar-plus fa-3x color-reservas mb-3"></i>
+                <h5>Nueva Reserva</h5>
+                <p class="text-muted">Reserva un vuelo</p>
+                <a href="{{ url_for('nueva_reserva') }}" class="btn btn-outline-reservas">
+                    <i class="fas fa-plus"></i> Crear Reserva
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-3">
+        <div class="card">
+            <div class="card-body text-center">
+                <i class="fas fa-chart-bar fa-3x color-reportes mb-3"></i>
+                <h5>Reportes</h5>
+                <p class="text-muted">Estadísticas del sistema</p>
+                <a href="{{ url_for('reportes') }}" class="btn btn-outline-reportes">
+                    <i class="fas fa-chart-bar"></i> Ver Reportes
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Panel de Información - Mantener colores originales aquí -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="mb-0">
+                    <i class="fas fa-info-circle"></i> Resumen del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-3 mb-3">
+        <div class="p-3 border border-vuelos border-2 rounded bg-light"> <!-- border-vuelos -->
+            <h4 class="text-primary">{{ total_vuelos|default(0) }}</h4>
+            <p class="text-muted mb-0">Vuelos Activos</p>
+            <small class="text-primary">Programados para hoy</small>
+        </div>
+    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded bg-light border-pasajeros">
+                            <h4 class="color-pasajeros">{{ total_pasajeros|default(0) }}</h4>
+                            <p class="text-muted mb-0">Pasajeros</p>
+                            <small class="color-pasajeros">Registrados en el sistema</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded bg-light border-reservas">
+                            <h4 class="color-reservas">{{ total_boletos|default(0) }}</h4>
+                            <p class="text-muted mb-0">Reservas</p>
+                            <small class="color-reservas">Confirmadas este mes</small>
+                        </div>
+                    </div>
+                    <div class="col-md-3 mb-3">
+                        <div class="p-3 border rounded bg-light border-reportes">
+                            <h4 class="color-reportes">${{ "%.2f"|format(ingresos_totales|default(0)) }}</h4>
+                            <p class="text-muted mb-0">Ingresos</p>
+                            <small class="color-reportes">Generados totales</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <div class="alert alert-primary">
+                            <h6><i class="fas fa-plane-departure"></i> Sistema de Reservas</h6>
+                            <p class="mb-0">
+                                Sistema completo para gestión de reservas de vuelos con sistema de pagos integrado.
+                                Los pasajeros tienen 24 horas para completar su pago después de hacer una reserva.
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-success">
+                            <h6><i class="fas fa-check-circle"></i> Funcionalidades Disponibles</h6>
+                            <ul class="mb-0">
+                                <li>Gestión completa de vuelos y pasajeros</li>
+                                <li>Sistema de reservas con expiración automática</li>
+                                <li>Procesamiento de pagos en línea</li>
+                                <li>Reportes y estadísticas en tiempo real</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Últimas Novedades (sin cambios) -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    <i class="fas fa-bell"></i> Últimas Novedades
+                </h5>
+                <span class="badge bg-primary">Nuevo</span>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-credit-card fa-2x color-reservas"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6>Sistema de Pagos</h6>
+                                <p class="small mb-0">Ahora puedes procesar pagos en línea con múltiples métodos.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-calendar-check fa-2x color-reservas"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6>Reservas Automáticas</h6>
+                                <p class="small mb-0">Nuevo sistema de reservas con expiración en 24 horas.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="d-flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-chart-pie fa-2x color-reportes"></i>
+                            </div>
+                            <div class="flex-grow-1 ms-3">
+                                <h6>Reportes Mejorados</h6>
+                                <p class="small mb-0">Nuevos reportes de reservas por aerolínea y estadísticas.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

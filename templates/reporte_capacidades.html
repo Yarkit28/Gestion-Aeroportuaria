@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Reporte de Capacidades</title>
+    <style>
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        th { background-color: #4e73df; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .fabrica-header { background-color: #2e59d9; color: white; font-size: 1.2em; }
+        .porcentaje { font-weight: bold; }
+        .turista { color: #4e73df; }
+        .ejecutiva { color: #1cc88a; }
+        .primera { color: #f6c23e; }
+    </style>
+</head>
+<body>
+    <h1>Reporte de Capacidades por Tipo de Avión</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Fabricante</th>
+                <th>Modelo</th>
+                <th>Capacidad Total</th>
+                <th>Turista</th>
+                <th>Ejecutiva (10%)</th>
+                <th>Primera Clase (5%)</th>
+                <th>Total Vuelos</th>
+                <th>Vuelos Futuros</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for capacidad in capacidades %}
+            <tr>
+                <td class="fabrica-header">{{ capacidad.fabricante }}</td>
+                <td>{{ capacidad.modelo }}</td>
+                <td><strong>{{ capacidad.capacidad_total }}</strong></td>
+                <td class="turista">
+                    {{ capacidad.capacidad_turista }}
+                    <br>
+                    <span class="porcentaje">({{ "%.1f"|format((capacidad.capacidad_turista/capacidad.capacidad_total)*100) }}%)</span>
+                </td>
+                <td class="ejecutiva">
+                    {{ capacidad.capacidad_ejecutiva }}
+                    <br>
+                    <span class="porcentaje">({{ "%.1f"|format((capacidad.capacidad_ejecutiva/capacidad.capacidad_total)*100) }}%)</span>
+                </td>
+                <td class="primera">
+                    {{ capacidad.capacidad_primera_clase }}
+                    <br>
+                    <span class="porcentaje">({{ "%.1f"|format((capacidad.capacidad_primera_clase/capacidad.capacidad_total)*100) }}%)</span>
+                </td>
+                <td>{{ capacidad.total_vuelos }}</td>
+                <td>{{ capacidad.vuelos_futuros }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    <div>
+        <a href="{{ url_for('reportes') }}">Volver a Reportes</a>
+    </div>
+</body>
+</html>

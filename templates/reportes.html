@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12 text-center mb-5">
+        <h1 class="display-4 text-primary"><i class="fas fa-chart-bar"></i> Reportes del Sistema</h1>
+        <p class="lead text-muted">Estadísticas y análisis de datos</p>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Tarjeta de Vuelos Programados -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-primary text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-plane fa-3x mb-3"></i>
+                <h2 class="card-title">{{ vuelos_programados }}</h2>
+                <p class="card-text">Vuelos Programados</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Pasajeros -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-success text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-3x mb-3"></i>
+                <h2 class="card-title">{{ total_pasajeros }}</h2>
+                <p class="card-text">Pasajeros Registrados</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Reservas Confirmadas (CAMBIADO) -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-warning text-dark">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-3x mb-3"></i> <!-- Cambiado icono -->
+                <h2 class="card-title">{{ reservas_confirmadas }}</h2>
+                <p class="card-text">Reservas Confirmadas</p> <!-- Cambiado texto -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjeta de Ingresos -->
+    <div class="col-md-3 mb-4">
+        <div class="card bg-info text-white">
+            <div class="card-body text-center">
+                <i class="fas fa-dollar-sign fa-3x mb-3"></i>
+                <h2 class="card-title">${{ "%.2f"|format(ingresos_totales) }}</h2>
+                <p class="card-text">Ingresos Totales</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-info-circle"></i> Información del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <p>Esta sección muestra las estadísticas generales del sistema aeroportuario.</p>
+                <ul>
+                    <li>Total de vuelos programados: <strong>{{ vuelos_programados }}</strong></li>
+                    <li>Total de pasajeros registrados: <strong>{{ total_pasajeros }}</strong></li>
+                    <li>Reservas confirmadas: <strong>{{ reservas_confirmadas }}</strong></li> <!-- Cambiado -->
+                    <li>Ingresos generados: <strong>${{ "%.2f"|format(ingresos_totales) }}</strong></li>
+                </ul>
+                <hr>
+                <div class="mt-3">
+                    <a href="{{ url_for('reportes_reservas') }}" class="btn btn-primary">
+                        <i class="fas fa-chart-pie"></i> Ver Reportes Detallados de Reservas
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección de Vuelos Más Populares (opcional, si quieres mantenerla) -->
+{% if vuelos_populares %}
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-crown"></i> Vuelos Más Populares (por reservas)
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Número de Vuelo</th>
+                                <th>Reservas Confirmadas</th>
+                                <th>Ingresos Generados</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for vuelo in vuelos_populares %}
+                            <tr>
+                                <td>{{ vuelo.numero_vuelo }}</td>
+                                <td>{{ vuelo.reservas_vendidas }}</td>
+                                <td>${{ "%.2f"|format(vuelo.ingresos) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

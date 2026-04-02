@@ -1,0 +1,100 @@
+<!-- templates/ver_boleto.html -->
+{% extends "base.html" %}
+
+{% block title %}Boleto - {{ boleto.codigo_boleto }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>🎫 Boleto de Vuelo</h1>
+        <a href="{{ url_for('reservas') }}" class="btn btn-secondary">
+            ← Volver a reservas
+        </a>
+    </div>
+    
+    <div class="card mb-4">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0">{{ boleto.codigo_boleto }}</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Información del Pasajero</h5>
+                    <p><strong>Nombre:</strong> {{ boleto.pasajero }}</p>
+                    <p><strong>Edad:</strong> {{ boleto.edad }}</p>
+                    <p><strong>Asiento:</strong> {{ boleto.numero_asiento }} ({{ boleto.tipo_asiento }})</p>
+                </div>
+                
+                <div class="col-md-6">
+                    <h5>Información del Vuelo</h5>
+                    <p><strong>Aerolínea:</strong> {{ boleto.aerolinea }}</p>
+                    <p><strong>Vuelo:</strong> {{ boleto.numero_vuelo }}</p>
+                    <p><strong>Avión:</strong> {{ boleto.modelo_avion }} ({{ boleto.fabricante }})</p>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <h5>Salida</h5>
+                    <p><strong>Origen:</strong> {{ boleto.origen }}</p>
+                    <p><strong>Fecha:</strong> {{ boleto.fecha }}</p>
+                    <p><strong>Hora:</strong> {{ boleto.hora_salida }}</p>
+                </div>
+                
+                <div class="col-md-6">
+                    <h5>Llegada</h5>
+                    <p><strong>Destino:</strong> {{ boleto.destino }}</p>
+                    <p><strong>Fecha llegada:</strong> {{ boleto.fecha }}</p>
+                    <p><strong>Hora llegada:</strong> {{ boleto.hora_llegada }}</p>
+                </div>
+            </div>
+            
+            <hr>
+            
+            <div class="row">
+                <div class="col-md-12">
+                    <h5>Información de Pago</h5>
+                    <p><strong>Precio base:</strong> ${{ "%.2f"|format(boleto.precio_base) }}</p>
+                    <p><strong>Precio final:</strong> <span class="text-success fw-bold">${{ "%.2f"|format(boleto.precio_final) }}</span></p>
+                    <p><strong>Fecha compra:</strong> {{ boleto.fecha_compra.strftime('%d/%m/%Y %H:%M') }}</p>
+                    <p><strong>Estado:</strong> 
+                        <span class="badge bg-success">{{ boleto.estado }}</span>
+                    </p>
+                    {% if boleto.reserva_codigo %}
+                    <p><strong>Código reserva:</strong> {{ boleto.codigo_reserva }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="text-center">
+        <button class="btn btn-primary" onclick="window.print()">
+            <i class="bi bi-printer"></i> Imprimir Boleto
+        </button>
+        <a href="{{ url_for('reservas') }}" class="btn btn-secondary">
+            Volver a Reservas
+        </a>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, .navbar, footer {
+        display: none !important;
+    }
+    
+    .card {
+        border: 2px solid #000 !important;
+    }
+    
+    .card-header {
+        background-color: #000 !important;
+        color: #fff !important;
+        -webkit-print-color-adjust: exact;
+    }
+}
+</style>
+{% endblock %}

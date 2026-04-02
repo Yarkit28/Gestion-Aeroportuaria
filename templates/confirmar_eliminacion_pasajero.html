@@ -1,0 +1,38 @@
+<!-- templates/confirmar_eliminacion_pasajero.html -->
+<div class="modal fade" id="modalEliminar{{ pasajero.id_pasajero }}">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title">⚠️ Eliminación Completa de Pasajero</h5>
+      </div>
+      <div class="modal-body">
+        <p><strong>Pasajero:</strong> {{ pasajero.nombre }}</p>
+        <p><strong>Edad:</strong> {{ pasajero.edad }} ({{ pasajero.tipo_pasajero }})</p>
+        
+        <div class="alert alert-warning">
+          <h6><strong>⚠️ Esto afectará:</strong></h6>
+          <ul>
+            <li>✅ Todos los boletos se marcarán como <strong>Cancelados</strong></li>
+            <li>✅ Los precios de boletos se establecerán a <strong>$0</strong></li>
+            <li>✅ Todas las reservas se <strong>cancelarán</strong></li>
+            <li>✅ Los pagos se marcarán como <strong>Reembolsados</strong></li>
+            <li>✅ Los ingresos serán <strong>descontados de los reportes</strong></li>
+            <li>✅ Los datos personales serán <strong>anonimizados</strong></li>
+          </ul>
+        </div>
+        
+        <p class="text-danger">
+          <strong>Esta acción NO se puede deshacer.</strong>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+        <form action="{{ url_for('eliminar_pasajero_completo', id=pasajero.id_pasajero) }}" method="POST">
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-user-slash"></i> Eliminar Completamente
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

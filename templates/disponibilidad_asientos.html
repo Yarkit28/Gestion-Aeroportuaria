@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Disponibilidad de Asientos - Vuelo {{ vuelo.id_vuelo }}</title>
+    <style>
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .vuelo-info { background: #f8f9fa; padding: 20px; border-radius: 5px; margin-bottom: 20px; }
+        .tabla-asientos { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .tabla-asientos th, .tabla-asientos td { border: 1px solid #ddd; padding: 12px; text-align: center; }
+        .tabla-asientos th { background-color: #4e73df; color: white; }
+        .disponible { color: #1cc88a; font-weight: bold; }
+        .limitado { color: #f6c23e; font-weight: bold; }
+        .agotado { color: #e74a3b; font-weight: bold; }
+        .barra-contenedor { width: 100%; background-color: #e9ecef; border-radius: 5px; height: 20px; }
+        .barra-progreso { height: 100%; border-radius: 5px; text-align: center; color: white; line-height: 20px; }
+        .turista { background-color: #4e73df; }
+        .ejecutiva { background-color: #1cc88a; }
+        .primera { background-color: #f6c23e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Disponibilidad de Asientos</h1>
+        
+        <div class="vuelo-info">
+            <h2>Vuelo {{ vuelo.id_vuelo }}</h2>
+            <p><strong>Ruta:</strong> {{ vuelo.origen }} → {{ vuelo.destino }}</p>
+            <p><strong>Fecha:</strong> {{ vuelo.fecha }} {{ vuelo.hora_salida }}</p>
+            <p><strong>Aerolínea:</strong> {{ vuelo.aerolinea }}</p>
+            <p><strong>Avion:</strong> {{ vuelo.fabricante }} {{ vuelo.modelo }} (Capacidad: {{ vuelo.capacidad_total }} asientos)</p>
+        </div>
+        
+        <h3>Distribución de Asientos</h3>
+        <table class="tabla-asientos">
+            <thead>
+                <tr>
+                    <th>Tipo de Asiento</th>
+                    <th>Total Asientos</th>
+                    <th>Disponibles</th>
+                    <th>Reservados</th>
+                    <th>Ocupados</th>
+                    <th>Porcentaje Disponible</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asiento in disponibilidad %}
+                <tr>
+                    <td>{{ asiento.tipo_asiento_nombre }}</td>
+                    <td>{{ asiento.asientos_totales }}</td>
+                    <td class="{% if asiento.asientos_disponibles > 10 %}disponible{% elif asiento.asientos_disponibles > 0 %}limitado{% else %}agotado{% endif %}">
+                        {{ asiento.asientos_disponibles }}
+                    </td>
+                    <td>{{ asiento.asientos_reservados }}</td>
+                    <td>{{ asiento.asientos_ocupados }}</td>
+                    <td>
+                        <div class="barra-contenedor">
+                            <div class="barra-progreso {{ asiento.tipo_asiento_nombre|lower|replace(' ', '-') }}" 
+                                 style="width: {{ asiento.porcentaje_disponible }}%;">
+                                {{ asiento.porcentaje_disponible }}%
+                            </div>
+                        </div>
+                    </td>
+                    <td>
+                        {% if asiento.asientos_disponibles > 10 %}
+                            <span class="disponible">✅ Disponible</span>
+                        {% elif asiento.asientos_disponibles > 0 %}
+                            <span class="limitado">⚠️ Últimos lugares</span>
+                        {% else %}
+                            <span class="agotado">❌ Agotado</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        <div style="margin-top: 30px;">
+            <a href="{{ url_for('vuelos') }}" class="btn btn-primary">Volver a Vuelos</a>
+            <a href="{{ url_for('disponibilidad') }}" class="btn btn-secondary">Buscar Disponibilidad</a>
+        </div>
+    </div>
+</body>
+</html>

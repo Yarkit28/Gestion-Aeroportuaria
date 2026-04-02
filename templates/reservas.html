@@ -1,0 +1,164 @@
+<!-- templates/reservas.html -->
+{% extends "base.html" %}
+
+{% block title %}Reservas{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>📋 Lista de Reservas</h1>
+        <a href="{{ url_for('nueva_reserva') }}" class="btn btn-primary">
+            ✨ Nueva Reserva
+        </a>
+    </div>
+    
+    {% if reservas %}
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>Código</th>
+                    <th>Fecha Reserva</th>
+                    <th>Pasajero</th>
+                    <th>Vuelo</th>
+                    <th>Ruta</th>
+                    <th>Fecha Vuelo</th>
+                    <th>Asiento</th>
+                    <th>Precio</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for reserva in reservas %}
+                <tr>
+                    <td>
+                        <strong>{{ reserva.codigo_reserva }}</strong>
+                        {% if reserva.fecha_expiracion %}
+                        <br>
+                        <small class="text-muted">
+                            Expira: {{ reserva.fecha_expiracion.strftime('%d/%m/%Y %H:%M') }}
+                        </small>
+                        {% endif %}
+                    </td>
+                    <td>{{ reserva.fecha_reserva.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ reserva.pasajero }}</td>
+                    <td>{{ reserva.numero_vuelo }}</td>
+                    <td>
+                        {{ reserva.origen }} → {{ reserva.destino }}
+                    </td>
+                    <td>
+                        {{ reserva.fecha }}<br>
+                        <small>{{ reserva.hora_salida }}</small>
+                    </td>
+                    <td>{{ reserva.tipo_asiento }}</td>
+                    <td>${{ "%.2f"|format(reserva.precio_reserva) }}</td>
+                    <td>
+                        {% set estado_clases = {
+                            'Pendiente': 'bg-warning text-dark',
+                            'Confirmada': 'bg-success',
+                            'Cancelada': 'bg-danger',
+                            'Expirada': 'bg-secondary'
+                        } %}
+                        <span class="badge {{ estado_clases.get(reserva.estado, 'bg-secondary') }}">
+                            {{ reserva.estado }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm" role="group">
+                            <!-- Botón PAGAR - solo para reservas pendientes -->
+                            {% if reserva.estado == 'Pendiente' and reserva.permite_pago %}
+                            <form action="{{ url_for('pagar_reserva', id_reserva=reserva.id_reserva) }}" 
+                                  method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-success" 
+                                        onclick="return confirm('¿Confirmar pago de {{ reserva.codigo_reserva }} por ${{ '%.2f'|format(reserva.precio_reserva) }}?')"
+                                        title="Pagar reserva">
+                                    <i class="bi bi-credit-card"></i> Pagar
+                                </button>
+                            </form>
+                            {% endif %}
+                            
+                            <!-- Botón CANCELAR - solo para pendientes o confirmadas -->
+                            {% if reserva.estado in ['Pendiente', 'Confirmada'] %}
+                            <form action="{{ url_for('cancelar_reserva', id_reserva=reserva.id_reserva) }}" 
+                                  method="POST" style="display: inline;">
+                                <button type="submit" class="btn btn-danger" 
+                                        onclick="return confirm('¿Cancelar la reserva {{ reserva.codigo_reserva }}?{% if reserva.estado == 'Confirmada' %} Se aplicará un reembolso.{% endif %}')"
+                                        title="Cancelar reserva">
+                                    <i class="bi bi-x-circle"></i> Cancelar
+                                </button>
+                            </form>
+                            {% endif %}
+                            
+                            <!-- Botón VER BOLETO - solo si tiene boleto activo -->
+                            {% if reserva.tiene_boleto and reserva.estado == 'Confirmada' %}
+                            <a href="{{ url_for('ver_boleto_reserva', id_reserva=reserva.id_reserva) }}" 
+                               class="btn btn-info" title="Ver boleto">
+                                <i class="bi bi-ticket"></i> Boleto
+                            </a>
+                            {% endif %}
+                            
+                            <!-- Botón DETALLES -->
+                            <button type="button" class="btn btn-secondary" 
+                                    data-bs-toggle="modal" 
+                                    data-bs-target="#detalleModal{{ reserva.id_reserva }}"
+                                    title="Ver detalles">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                        </div>
+                        
+                        <!-- Modal de detalles -->
+                        <div class="modal fade" id="detalleModal{{ reserva.id_reserva }}" tabindex="-1">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Detalles de Reserva</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Código:</strong> {{ reserva.codigo_reserva }}</p>
+                                        <p><strong>Pasajero:</strong> {{ reserva.pasajero }} (ID: {{ reserva.id_pasajero }})</p>
+                                        <p><strong>Vuelo:</strong> {{ reserva.numero_vuelo }}</p>
+                                        <p><strong>Ruta:</strong> {{ reserva.origen }} → {{ reserva.destino }}</p>
+                                        <p><strong>Fecha y hora:</strong> {{ reserva.fecha }} {{ reserva.hora_salida }}</p>
+                                        <p><strong>Tipo de asiento:</strong> {{ reserva.tipo_asiento }}</p>
+                                        <p><strong>Precio:</strong> ${{ "%.2f"|format(reserva.precio_reserva) }}</p>
+                                        <p><strong>Estado:</strong> {{ reserva.estado }}</p>
+                                        <p><strong>Fecha reserva:</strong> {{ reserva.fecha_reserva.strftime('%d/%m/%Y %H:%M') }}</p>
+                                        {% if reserva.fecha_expiracion %}
+                                        <p><strong>Expiración:</strong> {{ reserva.fecha_expiracion.strftime('%d/%m/%Y %H:%M') }}</p>
+                                        {% endif %}
+                                        {% if reserva.tiene_boleto %}
+                                        <p class="text-success"><strong>✅ Tiene boleto activo</strong></p>
+                                        {% endif %}
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        No hay reservas registradas. 
+        <a href="{{ url_for('nueva_reserva') }}">Crea tu primera reserva</a>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.btn-group .btn {
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+.btn-group .btn:last-child {
+    margin-right: 0;
+}
+</style>
+{% endblock %}

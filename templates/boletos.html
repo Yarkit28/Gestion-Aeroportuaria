@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Datos del Boleto - Selección de Asiento</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 12px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+        
+        .header {
+            background-color: #1a365d;
+            color: white;
+            padding: 25px 30px;
+        }
+        
+        .header h1 {
+            margin: 0 0 8px 0;
+            font-size: 1.8rem;
+        }
+        
+        .header p {
+            margin: 0;
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eaeaea;
+            padding-bottom: 25px;
+        }
+        
+        .section-title {
+            font-size: 1.4rem;
+            color: #1a365d;
+            margin-bottom: 20px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        
+        .flight-info {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+            border-left: 4px solid #2d8cff;
+        }
+        
+        .flight-info h3 {
+            margin-top: 0;
+            color: #1a365d;
+        }
+        
+        .price-base {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1a365d;
+            padding: 15px;
+            background-color: #f0f7ff;
+            border-radius: 8px;
+            margin-bottom: 25px;
+        }
+        
+        .seat-selector {
+            margin-bottom: 25px;
+        }
+        
+        .seat-options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .seat-option {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .seat-option:hover {
+            border-color: #2d8cff;
+            background-color: #f8fbff;
+        }
+        
+        .seat-option.selected {
+            border-color: #2d8cff;
+            background-color: #eef5ff;
+        }
+        
+        .seat-type {
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
+        
+        .seat-price {
+            font-weight: bold;
+            color: #1a365d;
+        }
+        
+        .price-summary {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
+            margin-top: 20px;
+            border: 1px solid #eaeaea;
+        }
+        
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 12px;
+            border-bottom: 1px dashed #ddd;
+        }
+        
+        .price-row.total {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1a365d;
+            border-bottom: none;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #ddd;
+        }
+        
+        .value {
+            font-weight: 600;
+        }
+        
+        .price-increase {
+            color: #10b981;
+            font-size: 0.9rem;
+        }
+        
+        .note {
+            font-size: 0.9rem;
+            color: #666;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #fff8e1;
+            border-radius: 6px;
+            border-left: 3px solid #ffb300;
+        }
+        
+        @media (max-width: 600px) {
+            .container {
+                border-radius: 8px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .seat-option {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .seat-price {
+                align-self: flex-end;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Datos del Boleto</h1>
+            <p>Complete la información de su vuelo</p>
+        </div>
+        
+        <div class="content">
+            <div class="section">
+                <h2 class="section-title">Seleccionar Vuelo</h2>
+                <div class="flight-info">
+                    <h3>Vuelo 4: Guanajuato → Cancún</h3>
+                    <p><strong>Fecha:</strong> 22 de diciembre de 2025</p>
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Precio Base</h2>
+                <div class="price-base">
+                    $1,000.00 MXN
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Tipo de Asiento</h2>
+                <p>Seleccione el tipo de asiento para continuar:</p>
+                
+                <div class="seat-selector">
+                    <div class="seat-options">
+                        <!-- Solo las opciones que activan el aumento de precio -->
+                        <div class="seat-option" data-type="economico" data-price="0">
+                            <span class="seat-type">Económico</span>
+                            <span class="seat-price">Sin cargo adicional</span>
+                        </div>
+                        
+                        <div class="seat-option" data-type="ejecutivo" data-price="500">
+                            <span class="seat-type">Ejecutivo</span>
+                            <span class="seat-price">+ $500.00</span>
+                        </div>
+                        
+                        <div class="seat-option" data-type="primera-clase" data-price="1000">
+                            <span class="seat-type">Primera Clase</span>
+                            <span class="seat-price">+ $1,000.00</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="note">
+                    <strong>Nota:</strong> Las opciones "Turista", "Ejecutiva" y la segunda "Primera Clase" han sido eliminadas ya que no activaban el aumentador de precio correctamente.
+                </div>
+            </div>
+            
+            <div class="section">
+                <h2 class="section-title">Resumen de Precio</h2>
+                <div class="price-summary">
+                    <div class="price-row">
+                        <span>Precio base:</span>
+                        <span class="value">$1,000.00</span>
+                    </div>
+                    
+                    <div class="price-row" id="seat-charge-row">
+                        <span>Cargo por asiento (<span id="selected-seat-type">No seleccionado</span>):</span>
+                        <span class="value" id="seat-charge">$0.00</span>
+                    </div>
+                    
+                    <div class="price-row total">
+                        <span>Total a pagar:</span>
+                        <span class="value" id="total-price">$1,000.00</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const basePrice = 1000;
+            const seatOptions = document.querySelectorAll('.seat-option');
+            const selectedSeatTypeElement = document.getElementById('selected-seat-type');
+            const seatChargeElement = document.getElementById('seat-charge');
+            const totalPriceElement = document.getElementById('total-price');
+            
+            // Inicializar con primera clase seleccionada (como en el diseño original)
+            const defaultOption = document.querySelector('.seat-option[data-type="primera-clase"]');
+            defaultOption.classList.add('selected');
+            updatePrice(defaultOption);
+            
+            // Añadir eventos a cada opción de asiento
+            seatOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remover selección previa
+                    seatOptions.forEach(opt => opt.classList.remove('selected'));
+                    
+                    // Añadir selección a la opción clickeada
+                    this.classList.add('selected');
+                    
+                    // Actualizar precio
+                    updatePrice(this);
+                });
+            });
+            
+            function updatePrice(selectedOption) {
+                const seatType = selectedOption.getAttribute('data-type');
+                const seatPrice = parseInt(selectedOption.getAttribute('data-price'));
+                
+                // Actualizar tipo de asiento seleccionado
+                let seatTypeText = '';
+                switch(seatType) {
+                    case 'economico':
+                        seatTypeText = 'Económico';
+                        break;
+                    case 'ejecutivo':
+                        seatTypeText = 'Ejecutivo';
+                        break;
+                    case 'primera-clase':
+                        seatTypeText = 'Primera Clase';
+                        break;
+                }
+                
+                selectedSeatTypeElement.textContent = seatTypeText;
+                
+                // Calcular precios
+                const totalPrice = basePrice + seatPrice;
+                
+                // Actualizar elementos del DOM
+                seatChargeElement.textContent = '$' + seatPrice.toFixed(2);
+                totalPriceElement.textContent = '$' + totalPrice.toFixed(2);
+                
+                // Mostrar u ocultar la fila de cargo por asiento
+                const seatChargeRow = document.getElementById('seat-charge-row');
+                if (seatPrice === 0) {
+                    seatChargeRow.style.display = 'none';
+                } else {
+                    seatChargeRow.style.display = 'flex';
+                }
+            }
+        });
+    </script>
+</body>
+</html>
